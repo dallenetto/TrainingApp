@@ -1,0 +1,140 @@
+#Iniciando setup inicial
+1. 
+  npm init -y
+
+2. 
+  npm i express cors dotenv helmet morgan express-async-errors
+    A saber:
+      Express: webserver que vamos utilizar para a webapi;
+      CORS: pacote de segurança necessário para permitir comunicação futura com frontend;
+      Helmet: pacote de segurança para dar uma blindada básica na nossa webapi;
+      DotEnv: pacote de configuração para cuidar das variáveis de ambiente;
+      Morgan: pacote para logging de requisições no terminal;
+      Express Async Errors: pacote para conseguir capturar erros assíncronos;
+
+3. 
+  npm i -D typescript ts-node @types/express @types/cors @types/helmet @types/dotenv @types/morgan
+    A saber:
+      Typescript: pacote para suporte à typescript no projeto;
+      TS-Node: pacote para execução de arquivos TS sem precisar de pré-transpilação;
+      @types/…: types dos pacotes que vamos usar, para reconhecimento na ferramente;
+
+4. 
+  npx tsc --init
+   A saber: Isso irá criar o arquivo tsconfig.json 
+
+5. tsconfig.json:
+  {
+    "compilerOptions": {
+      "target": "es2016",
+      "module": "commonjs",
+      "rootDir": "./src/",
+      "moduleResolution": "node",
+      "baseUrl": ".",
+      "outDir": "./dist/",
+      "esModuleInterop": true,
+      "forceConsistentCasingInFileNames": true,
+      "strict": true,
+      "skipLibCheck": true
+    },
+    "ts-node": { "transpileOnly": true }
+  }
+
+  Sobre propriedades alteradas:
+    target: diz respeito a versão do JS a ser usada na transpilação;
+    rootDir: onde estão os arquivos TS;
+    outDir: onde estarão os arquivos JS após transpilação;
+    ts-node: configurações específicas do TS-Node, onde coloquei uma configuração que reduz consumo de memória;
+
+6. Estrutura:
+  /trainingApp
+    /src/
+        /controllers
+        /models
+        /repositories
+        /routers
+        app.ts
+        server.ts
+    .env
+    package.json
+    tsconfig.json
+
+  Breve explicação da responsabilidade de cada um:
+    server.ts: módulo de inicialização do servidor web onde nossa webapi estará hospedada, módulo de infraestrutura;
+    app.ts: módulo de configuração da webapi, módulo de aplicação;
+    routers: pasta onde guardaremos os módulos de roteamento, que mapeiam os endpoints para as funções de controle;
+    controllers: pasta onde guardaremos os módulos de controle, que recebem as requisições roteadas e fazem os processamentos necessários;
+    models: pasta onde guardaremos os módulos de entidades, que contém a especificação delas;
+    repositories: pasta onde guardaremos os módulos de repositório, que contém as funções de leitura, exclusão, inserção, etc das entidades;
+
+7. Configurar script no package.json
+   "scripts": {
+    "dev": "npx nodemon src/server.ts --watch 'src/' -e ts",
+    "compile": "npx tsc",
+    "start": "node ./dist/server.js"
+  }
+
+  a saber:
+  Quando estivermos desenvolvendo, nós deixaremos a aplicação rodando com o comando “npm run dev”, 
+  enquanto que em produção, usaremos o “npm run compile” para transpilar TS para JS 
+  e depois “npm start” para subir a aplicação. 
+
+  Estou usando Nodemon em ambiente de dev para manter o processo sempre rodando 
+  e que ele automaticamente detecta que você possui o TS-Node instalado e que os arquivos TS devem ser executados com ele.
+
+#Finalizando setup inicial
+
+#Iniciando config servidor e aplicação
+8. Configurando app.ts:
+  import 'express-async-errors';
+  import express, { Request, Response, NextFunction } from 'express';
+  import cors from 'cors';
+  import morgan from 'morgan';
+  import helmet from 'helmet';
+
+9. Criar a aplicação Express e configurar os middlewares:
+  #abrir app.ts para identificar as inis abaixo:
+  A primeira linha inicializa a aplicação Express, enquanto que as demais pluga os middlewares. 
+  1. O primeiro é o Morgan, com configuração minimalista de logs. 
+  2. O segundo é CORS, com configuração aberta para receber requisições de qualquer frontend. 
+  3. O terceiro é o Helmet, com a configuração padrão que nos protege de 11 vulnerabilidades comuns na web. 
+  4. O quarto middleware é o express.json() que é um body-parser para que nossa API possa receber dados JSON.
+  E os dois últimos e mais importantes middlewares neste momento são:
+    1. o de tratamento global onde qualquer requisição que chegar será respondida com um Hello World e 
+    2. o middleware de erro (último) que será ativado caso qualquer middleware anterior dispare uma exceção não tratada
+
+
+10. Configurando server.ts:
+  import dotenv from 'dotenv';
+  dotenv.config();
+  const PORT = parseInt(`${process.env.PORT || 3000}`);
+  import app from './app';
+  app.listen(PORT, () => console.log(`Server is running at ${PORT}.`));
+
+  a saber:
+  Aqui começamos carregando as variáveis de ambiente com o pacote dotenv. 
+  Usaremos a variável PORT para, com a app importada, inicializar ela na porta configurada, 
+  imprimindo no console quando esse processo terminar.
+
+11. Iniciar a aplicação:
+  npm run dev
+
+12. Https usados:
+  200: sucesso genérico (default);
+  201: sucesso em criação/adição;
+  204: sucesso sem retorno (geralmente exclusão);
+  404: não encontrado;
+
+13. Verbos Http:
+  GET: retorno de dados;
+  POST: salvamento de nova entidade;
+  PATCH: atualização parcial de dados;
+  DELETE: exclusão de entidade;
+
+14. vvv:
+
+
+    
+
+
+
